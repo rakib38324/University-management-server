@@ -5,9 +5,9 @@ import {
   TStudent,
   StudentModel,
   TUserName,
-} from './student/student.interface';
+} from './student.interface';
 import bcrypt from 'bcrypt';
-import config from '../config';
+import config from '../../config';
 // import validator from 'validator';
 
 const userNameSchema = new Schema<TUserName>({
@@ -116,6 +116,13 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       maxlength: [20, 'password can not more then 20 charatcher'],
     },
 
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, "User is required"],
+      unique: true,
+      ref: 'User',
+    },
+
     name: {
       type: userNameSchema,
       required: true,
@@ -179,11 +186,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 
     profileImage: { type: String },
 
-    isActive: {
-      type: String,
-      enum: ['active', 'blocked'],
-      default: 'active',
-    },
 
     isDeleted: {
       type: Boolean,
