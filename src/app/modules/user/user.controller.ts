@@ -1,48 +1,46 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Request, Response } from "express";
 import { UserServices } from "./user.service";
+import sendResponse from "../../utils/sendResponse";
+import httpStatus from "http-status";
+import catchAsync from "../../utils/catchAsync";
 
-const createStudent = async (req: Request, res: Response) => {
-    try {
-        const { password, student: studentData } = req.body;
 
-        //===================validation with Zod========================
 
-        //   const zodParsedData = studentValidationZodSchema.parse(studentData);
+const createStudent = catchAsync(async (req, res) => {
 
-        //========================== validation with joi ======================
-        //call joi
-        //data validation using Joi
-        // const { error, value } = studentValidationJoiSchema.validate(studentData);
+    const { password, student: studentData } = req.body;
 
-        //will call service function to send this data
-        const result = await UserServices.createStudentIntoDB(password, studentData);
+    //===================validation with Zod========================
 
-        // if (error) {
-        //     res.status(500).json({
-        //         success: false,
-        //         message: 'Something went wrong',
-        //         error: error.details,
-        //     });
-        // }
+    //   const zodParsedData = studentValidationZodSchema.parse(studentData);
 
-        // console.log({error})
-        // console.log({value})
+    //========================== validation with joi ======================
+    //call joi
+    //data validation using Joi
+    // const { error, value } = studentValidationJoiSchema.validate(studentData);
 
-        //sent responce
-        res.status(200).json({
-            success: true,
-            message: 'student is created successfully',
-            data: result,
-        });
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: error.message || 'Something went wrong',
-            error: error,
-        });
-    }
-};
+    //will call service function to send this data
+    const result = await UserServices.createStudentIntoDB(password, studentData);
+
+    // if (error) {
+    //     res.status(500).json({
+    //         success: false,
+    //         message: 'Something went wrong',
+    //         error: error.details,
+    //     });
+    // }
+
+    // console.log({error})
+    // console.log({value})
+
+    //--->sent responce
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Student Created Successfully",
+        data: result
+    });
+
+});
 
 
 export const UserController = {

@@ -6,8 +6,7 @@ import {
   StudentModel,
   TUserName,
 } from './student.interface';
-import bcrypt from 'bcrypt';
-import config from '../../config';
+
 // import validator from 'validator';
 
 const userNameSchema = new Schema<TUserName>({
@@ -110,11 +109,6 @@ const userLocalGardianSchema = new Schema<TLocalGuardian>({
 const studentSchema = new Schema<TStudent, StudentModel>(
   {
     id: { type: String, required: true, unique: true },
-    password: {
-      type: String,
-      required: true,
-      maxlength: [20, 'password can not more then 20 charatcher'],
-    },
 
     user: {
       type: Schema.Types.ObjectId,
@@ -138,16 +132,12 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: true,
     },
 
-    dateOfBirth: { type: String },
+    dateOfBirth: { type: Date },
 
     email: {
       type: String,
       required: true,
       unique: true,
-      // validate:{
-      //   validator:(value:string) => validator.isEmail(value),
-      //   message:'{VALUE} is not valid email type.'
-      // }
     },
 
     contactNum: {
@@ -204,39 +194,7 @@ studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
 
-//================= make middleware=================
 
-//========= pre save middleware/ hook : will work on create()/ save()==============
-
-studentSchema.pre('save', async function (next) {
-  // console.log(this, "Pre hook : we will save  data")
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this;
-  //hashing password and save into DB
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_round),
-  );
-
-  next();
-});
-
-//========= pre save middleware/ hook ==============
-studentSchema.post('save', function (doc, next) {
-  doc.password = '';
-
-  // console.log(this, "Post hook : we saved our data")
-
-  next();
-});
-
-//=========== query meddleware==================
-studentSchema.pre('find', function (next) {
-  // console.log(this)
-  this.find({ isDeleted: { $ne: true } });
-
-  next();
-});
 
 studentSchema.pre('findOne', function (next) {
   // console.log(this)
@@ -244,6 +202,14 @@ studentSchema.pre('findOne', function (next) {
 
   next();
 });
+
+  //=========== query meddleware==================
+  studentSchema.pre('find', function (next) {
+    // console.log(this)
+    this.find({ isDeleted: { $ne: true } });
+  
+    next();
+  });
 
 studentSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });

@@ -34,40 +34,41 @@ const localGuardianValidationZodSchema = z.object({
   address: z.string().min(1).max(200),
 });
 
-const studentValidationZodSchema = z.object({
-  id: z.string(),
+const createStudentValidationZodSchema = z.object({
+  body: z.object({
+    password: z.string().max(20),
 
-  password: z.string().max(20),
+    student: z.object({
+      name: userNameValidationZodSchema,
 
-  name: userNameValidationZodSchema,
+      gender: z.enum(['Male', 'Female', 'Other']),
 
-  gender: z.enum(['Male', 'Female', 'Other']),
+      dateOfBirth: z.date().optional(),
 
-  dateOfBirth: z.string().optional(),
+      email: z.string().email(),
 
-  email: z.string().email(),
+      contactNum: z.string().min(1),
 
-  contactNum: z.string().min(1),
+      emergencyContactNum: z.string().min(1),
 
-  emergencyContactNum: z.string().min(1),
+      bloodGroup: z
+        .enum(['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O-'])
+        .optional(),
 
-  bloodGroup: z
-    .enum(['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O-'])
-    .optional(),
+      presentAddress: z.string().min(1),
 
-  presentAddress: z.string().min(1),
+      permanentAddress: z.string().min(1),
 
-  permanentAddress: z.string().min(1),
+      guardian: guardianValidationZodSchema,
 
-  guardian: guardianValidationZodSchema,
+      localGuardian: localGuardianValidationZodSchema,
 
-  localGuardian: localGuardianValidationZodSchema,
+      profileImage: z.string().optional(),
+    })
 
-  profileImage: z.string().optional(),
-
-  isActive: z.enum(['active', 'blocked']).default('active'),
-
-  isDeleted: z.boolean(),
+  })
 });
 
-export default studentValidationZodSchema;
+export const studentValidation = {
+ createStudentValidationZodSchema
+};
