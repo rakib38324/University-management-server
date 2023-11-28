@@ -1,64 +1,50 @@
-// import { Schema, model } from "mongoose";
-// import { TUser } from "./user.interface";
-// import bcrypt from 'bcrypt';
-// import config from '../../config';
+import { Schema, model } from "mongoose";
+import { TAcademicSemester } from "./academicSemester.interface";
+import { AcademicSemesterCode, AcademicSemesterName, Months } from "./academicSemester.constant";
 
 
-// const AcademicSemesterSchema = new Schema<TUser>({
-//     id: {
-//         type: String,
-//         require: true
-//     },
-//     password: {
-//         type: String,
-//         require: true
-//     },
-//     needsPasswordChange:{
-//         type: Boolean,
-//         default: true
-//     },
-//     role: {
-//         type: String,
-//         enum:['admin' , 'student', 'faculty']
-//     },
-//     status: {
-//         type: String,
-//         enum: ['in-progress', 'blocked'],
-//         default: 'in-progress'
-//     },
-//     isDeleted:{
-//         type: Boolean,
-//         default: false
-//     },
-// },
-// {
-//     timestamps: true,
-// }
-// );
+const AcademicSemesterSchema = new Schema<TAcademicSemester>({
+    name: {
+        type: String,
+        require: true,
+        enum: AcademicSemesterName
+    },
+    year: {
+        type: String,
+        require: true
+    },
+    code: {
+        type: String,
+        required: true,
+        enum: AcademicSemesterCode
+    },
+    startMonth: {
+        type: String,
+        required: true,
+        enum: Months
+    },
+    endMonth: {
+        type: String,
+        required: true,
+        enum: Months
+    }
+},
+    {
+        timestamps: true,
+    }
+);
 
+AcademicSemesterSchema.pre('save', async function(next){
+    const isSemesterExistis = await AcademicSemester.findOne({
+        year: this.year, 
+        name: this.name
+    })
 
-// //================= make middleware=================
+    if(isSemesterExistis){
+        throw new Error("Semester is already existis!!!");
+    }
 
-// User_Schema.pre('save', async function (next) {
-//     // eslint-disable-next-line @typescript-eslint/no-this-alias
-//     const user = this;
+    next();
+})
 
-//     //hashing password and save into DB
-//     user.password = await bcrypt.hash(
-//       user.password,
-//       Number(config.bcrypt_salt_round),
-//     );
-  
-//     next();
-//   });
-  
-//   //========= pre save middleware/ hook ==============
-//   //--> set "" after saving password
-//   User_Schema.post('save', function (doc, next) {
-//     doc.password = '';
-//     next();
-//   });
-  
-
-
-// export const User = model<TUser>('User', User_Schema);
+export const AcademicSemester = model<TAcademicSemester>('AcademicSemester', AcademicSemesterSchema)
