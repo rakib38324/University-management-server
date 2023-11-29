@@ -7,7 +7,8 @@ import config from '../../config';
 const User_Schema = new Schema<TUser>({
     id: {
         type: String,
-        require: true
+        require: true,
+        unique: true
     },
     password: {
         type: String,

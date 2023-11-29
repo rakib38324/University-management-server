@@ -43,7 +43,7 @@ const createStudentValidationZodSchema = z.object({
 
       gender: z.enum(['Male', 'Female', 'Other']),
 
-      dateOfBirth: z.date().optional(),
+      dateOfBirth: z.string().optional(),
 
       email: z.string().email(),
 
@@ -62,6 +62,8 @@ const createStudentValidationZodSchema = z.object({
       guardian: guardianValidationZodSchema,
 
       localGuardian: localGuardianValidationZodSchema,
+
+      admissionSemester: z.string(),
 
       profileImage: z.string().optional(),
     })

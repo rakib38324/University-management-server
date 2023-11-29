@@ -176,6 +176,11 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 
     profileImage: { type: String },
 
+    admissionSemester: {
+       type: Schema.Types.ObjectId,
+      ref: "AcademicSemester"
+      },
+
 
     isDeleted: {
       type: Boolean,
@@ -203,13 +208,13 @@ studentSchema.pre('findOne', function (next) {
   next();
 });
 
-  //=========== query meddleware==================
-  studentSchema.pre('find', function (next) {
-    // console.log(this)
-    this.find({ isDeleted: { $ne: true } });
-  
-    next();
-  });
+//=========== query meddleware==================
+studentSchema.pre('find', function (next) {
+  // console.log(this)
+  this.find({ isDeleted: { $ne: true } });
+
+  next();
+});
 
 studentSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
