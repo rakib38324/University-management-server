@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import mongoose from "mongoose";
 import config from "../../config";
 import { AcademicSemester } from "../academicSemester/academicSemester.model";
 import { TStudent } from "../student/student.interface";
@@ -5,12 +7,12 @@ import { Student } from "../student/student.model";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
 import { generateStudentId } from "./user.utilis";
+import AppError from "../../errors/AppError";
+import httpStatus from "http-status";
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
 
-    // if (await Student.isUserExists(studentData.id)) {
-    //   throw new Error('User already exists!!!!!!');
-    // }
+
 
 
     //------> create a user object
@@ -29,33 +31,50 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     const admissionSmester = await AcademicSemester.findById(payload.admissionSemester)
 
 
-    if (admissionSmester) {
-        //------> set generate id
-        userData.id = await generateStudentId(admissionSmester)
-    }
+    const session = await mongoose.startSession()
 
-    //-----> create a user
-    const result = await User.create(userData); //built instatic method
+    try {
+        session.startTransaction();
 
-    //-----> create a student
-    if (Object.keys(result).length) {
+        if (admissionSmester) {
+            //------> set generate id
+            userData.id = await generateStudentId(admissionSmester)
+        }
+
+        //-----> create a user (transaction-1)
+        const newUser = await User.create([userData], { session }); //array
+
+        //-----> create a student
+        if (!newUser.length) {
+            throw new AppError(httpStatus.BAD_REQUEST, "Failed to create user!");
+        }
         //----> set id, _id as user
-        payload.id = result.id;
-        payload.user = result._id //reference id
+        payload.id = newUser[0].id;
+        payload.user = newUser[0]._id //reference id
 
-        const newStudent = await Student.create(payload);
-        return newStudent;
+        //-----> create a student (transaction-2)
+        const newStudent = await Student.create([payload], { session });
+        if (!newStudent.length) {
+            throw new AppError(httpStatus.BAD_REQUEST, "Failed to create student!");
+        }
+
+        await session.commitTransaction();
+        await session.endSession();
+
+        return newStudent[0];
+
+
+    } catch (error:any) {
+        // console.log(error);
+        throw new AppError(httpStatus.NOT_IMPLEMENTED, error.message)
+        await session.abortTransaction();
+        await session.endSession();
     }
 
 
-    // const student = new Student(studentData); // create an instance
 
-    // if(await  student.isUserExists(studentData.id)){
-    //     throw new Error("User already exists!!!");
 
-    // }
 
-    // const result = await student.save() //built in instrance method from mongoose
 };
 
 export const UserServices = {
