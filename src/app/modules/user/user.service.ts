@@ -66,14 +66,10 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 
     } catch (error:any) {
         // console.log(error);
-        throw new AppError(httpStatus.NOT_IMPLEMENTED, error.message)
         await session.abortTransaction();
         await session.endSession();
+        throw new AppError(httpStatus.NOT_IMPLEMENTED, error.message)
     }
-
-
-
-
 
 };
 

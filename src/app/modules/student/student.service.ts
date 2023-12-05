@@ -5,16 +5,95 @@ import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 import { User } from '../user/user.model';
 import { TStudent } from './student.interface';
+import QueryBulider from '../../builder/QueryBuilder';
+import { studentsSearchableFields } from './students.constant';
 
-const getAllStudentFromDB = async () => {
-  const result = await Student.find()
+const getAllStudentFromDB = async (query: Record<string, unknown>) => {
+  // const queryObj = { ...query }// copoy
+
+
+  // const studentsSearchableFields = ['email', 'id', 'name.firstName', 'name.lastName', 'presentAddress']
+  // let searchTerm = '';
+  // if (query?.searchTerm) {
+  //   searchTerm = query?.searchTerm as string;
+  // }
+
+  // const searchQuery = Student.find({
+  //   $or: studentsSearchableFields.map((field) => ({
+  //     [field]: { $regex: searchTerm, $options: 'i' },
+  //   }))
+  // })
+
+  // //--> filtering
+  // const excludeFileds = ['searchTerm', 'sort', 'limit','page','fields'];
+
+  // excludeFileds.forEach((el) => delete queryObj[el]);
+  // // console.log({ query, queryObj })
+
+
+  // const filterQuery = searchQuery
+  //   .find(queryObj)
+  //   .populate("admissionSemester")
+  //   .populate({
+  //     path: 'academicDepartment',
+  //     populate: {
+  //       path: 'academicFaculty',
+  //     },
+  //   });
+
+
+  // let sort = '-createAt'
+  // if (query.sort) {
+  //   sort = query.sort as string;
+  // }
+
+  // const sortQuery = filterQuery.sort(sort);
+
+
+  // let limit = 1;
+  // let page = 1;
+  // let skip = 0;
+
+  // if(query?.limit){
+  //   limit = Number(query.limit);
+  // }
+
+  // if(query?.page){
+  //   page = Number(query.page);
+  //   skip = (page-1)*limit;
+  // }
+
+  // const paginateQuery = sortQuery.skip(skip)
+
+
+  // const limitQuery = paginateQuery.limit(limit);
+
+  // let fields = '-__v';
+  // if(query.fields){
+  //   fields = (query.fields as string).split(',').join(' ');
+  // }
+
+
+  // const fieldsQuery = await limitQuery.select(fields);
+
+  // return fieldsQuery;
+
+  const studentQuery = new QueryBulider(Student.find()
     .populate("admissionSemester")
     .populate({
       path: 'academicDepartment',
       populate: {
         path: 'academicFaculty',
       },
-    });
+    }), query)
+    .search(studentsSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await studentQuery.modelQuery
+
   return result;
 };
 
@@ -112,7 +191,7 @@ const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
       }
     }
 
- 
+
 
     const result = await Student.findOneAndUpdate(
       { id },
