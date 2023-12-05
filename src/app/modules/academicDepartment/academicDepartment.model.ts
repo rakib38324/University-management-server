@@ -6,8 +6,8 @@ import httpStatus from "http-status";
 const academicDepartmentSchema = new Schema<TAcademicDepartment>({
     name: {
         type: String,
+        require: [true, "name is required"],
         unique: true,
-        require: true,
     },
     academicFaculty: {
         type: Schema.Types.ObjectId,

@@ -112,7 +112,7 @@ const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
       }
     }
 
-
+ 
 
     const result = await Student.findOneAndUpdate(
       { id },
