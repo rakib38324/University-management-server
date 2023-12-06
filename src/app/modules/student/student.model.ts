@@ -112,7 +112,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 
     user: {
       type: Schema.Types.ObjectId,
-      required: [true, "User is required"],
+      required: [true, 'User is required'],
       unique: true,
       ref: 'User',
     },
@@ -178,15 +178,13 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 
     academicDepartment: {
       type: Schema.Types.ObjectId,
-      ref: "AcademicDepartment"
+      ref: 'AcademicDepartment',
     },
- 
 
     admissionSemester: {
       type: Schema.Types.ObjectId,
-      ref: "AcademicSemester"
+      ref: 'AcademicSemester',
     },
-
 
     isDeleted: {
       type: Boolean,
@@ -204,8 +202,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 studentSchema.virtual('fullName').get(function () {
   return `${this?.name?.firstName} ${this?.name?.middleName} ${this?.name?.lastName}`;
 });
-
-
 
 studentSchema.pre('findOne', function (next) {
   // console.log(this)

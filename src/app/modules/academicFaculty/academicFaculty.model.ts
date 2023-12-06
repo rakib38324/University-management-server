@@ -1,16 +1,20 @@
-import { Schema, model } from "mongoose";
-import { TAcademicFaculty } from "./adademicFaculty.interface";
+import { Schema, model } from 'mongoose';
+import { TAcademicFaculty } from './adademicFaculty.interface';
 
-const academicFacultySchema = new Schema<TAcademicFaculty>({
+const academicFacultySchema = new Schema<TAcademicFaculty>(
+  {
     name: {
-        type: String,
-        require: [true,"Name is required"],
-        unique: true,
-    }
-},
-{
+      type: String,
+      require: [true, 'Name is required'],
+      unique: true,
+    },
+  },
+  {
     timestamps: true,
-});
+  },
+);
 
-export const AcademicFaculty = model<TAcademicFaculty>('AcademicFaculty', academicFacultySchema);
-
+export const AcademicFaculty = model<TAcademicFaculty>(
+  'AcademicFaculty',
+  academicFacultySchema,
+);

@@ -34,7 +34,7 @@ const createLocalGuardianValidationZodSchema = z.object({
   address: z.string().min(1).max(200),
 });
 
-const createStudentValidationZodSchema = z.object({
+export const createStudentValidationZodSchema = z.object({
   body: z.object({
     password: z.string().max(20),
 
@@ -67,49 +67,51 @@ const createStudentValidationZodSchema = z.object({
       academicDepartment: z.string(),
 
       profileImage: z.string().optional(),
-    })
-
-  })
+    }),
+  }),
 });
 
+const updateUserNameValidationZodSchema = z
+  .object({
+    firstName: z.string().min(1).max(20).optional(),
 
+    middleName: z.string().max(20).optional().optional(),
 
+    lastName: z.string().min(1).max(20).optional(),
+  })
+  .optional();
 
-const updateUserNameValidationZodSchema = z.object({
-  firstName: z.string().min(1).max(20).optional(),
+const updateGuardianValidationZodSchema = z
+  .object({
+    fatherName: z.string().min(1).max(50).optional(),
 
-  middleName: z.string().max(20).optional().optional(),
+    fatherContactNum: z.string().min(1).optional(),
 
-  lastName: z.string().min(1).max(20).optional(),
-}).optional();
+    fatherOccupation: z.string().min(1).optional(),
 
-const updateGuardianValidationZodSchema = z.object({
-  fatherName: z.string().min(1).max(50).optional(),
+    motherName: z.string().min(1).max(50).optional(),
 
-  fatherContactNum: z.string().min(1).optional(),
+    motherContactNum: z.string().min(1).optional(),
 
-  fatherOccupation: z.string().min(1).optional(),
+    motherOccupation: z.string().min(1).optional(),
+  })
+  .optional();
 
-  motherName: z.string().min(1).max(50).optional(),
+const updateLocalGuardianValidationZodSchema = z
+  .object({
+    relation: z.string().min(1).optional(),
 
-  motherContactNum: z.string().min(1).optional(),
+    name: z.string().min(1).max(50).optional(),
 
-  motherOccupation: z.string().min(1).optional(),
-}).optional();
+    contactNum: z.string().min(1).optional(),
 
-const updateLocalGuardianValidationZodSchema = z.object({
-  relation: z.string().min(1).optional(),
+    occupation: z.string().min(1).optional(),
 
-  name: z.string().min(1).max(50).optional(),
+    address: z.string().min(1).max(200).optional(),
+  })
+  .optional();
 
-  contactNum: z.string().min(1).optional(),
-
-  occupation: z.string().min(1).optional(),
-
-  address: z.string().min(1).max(200).optional(),
-}).optional();
-
-const updateStudentValidationZodSchema = z.object({
+export const updateStudentValidationZodSchema = z.object({
   body: z.object({
     password: z.string().max(20).optional(),
 
@@ -142,12 +144,11 @@ const updateStudentValidationZodSchema = z.object({
       academicDepartment: z.string().optional(),
 
       profileImage: z.string().optional(),
-    })
-
-  })
+    }),
+  }),
 });
 
 export const studentValidation = {
- createStudentValidationZodSchema,
- updateStudentValidationZodSchema
+  createStudentValidationZodSchema,
+  updateStudentValidationZodSchema,
 };

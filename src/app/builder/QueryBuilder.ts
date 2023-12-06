@@ -1,68 +1,71 @@
-import { FilterQuery, Query } from "mongoose";
+import { FilterQuery, Query } from 'mongoose';
 
-class QueryBulider<T>{
-    public modelQuery: Query<T[], T>;
-    public query: Record<string, unknown>;
+class QueryBulider<T> {
+  public modelQuery: Query<T[], T>;
+  public query: Record<string, unknown>;
 
-    constructor(modelQuery: Query<T[], T>, query: Record<string, unknown>) {
-        this.modelQuery = modelQuery;
-        this.query = query;
+  constructor(modelQuery: Query<T[], T>, query: Record<string, unknown>) {
+    this.modelQuery = modelQuery;
+    this.query = query;
+  }
+
+  search(searchableFields: string[]) {
+    const searchTerm = this?.query?.searchTerm;
+    if (searchTerm) {
+      this.modelQuery = this.modelQuery.find({
+        $or: searchableFields.map(
+          (field) =>
+            ({
+              [field]: { $regex: searchTerm, $options: 'i' },
+            }) as FilterQuery<T>,
+        ),
+      });
     }
 
-    search(searchableFields: string[]) {
-        const searchTerm = this?.query?.searchTerm
-        if (searchTerm) {
-            this.modelQuery = this.modelQuery.find({
-                $or: searchableFields.map((field) => ({
-                    [field]: { $regex: searchTerm, $options: 'i' },
-                }) as FilterQuery<T>)
-            })
-        };
+    return this;
+  }
 
-        return this;
-    };
+  filter() {
+    const queryObj = { ...this.query }; // copy
 
-    filter() {
-        const queryObj = { ...this.query }// copy
+    //--> filtering
+    const excludeFileds = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
 
-        //--> filtering
-        const excludeFileds = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+    excludeFileds.forEach((el) => delete queryObj[el]);
+    // console.log({ query, queryObj })
 
-        excludeFileds.forEach((el) => delete queryObj[el]);
-        // console.log({ query, queryObj })
+    this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
 
-        this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
+    return this;
+  }
 
-        return this;
-    };
+  sort() {
+    const sort =
+      (this?.query?.fields as string)?.split(',').join(' ') || '-createdAt';
 
-    sort() {
-        const sort =  (this?.query?.fields as string)?.split(',').join(' ') || "-createdAt";
+    this.modelQuery = this.modelQuery.sort(sort as string);
 
-        this.modelQuery = this.modelQuery.sort(sort as string);
+    return this;
+  }
 
-        return this;
-    };
+  paginate() {
+    const page = Number(this?.query?.page) || 1;
+    const limit = Number(this?.query?.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    paginate() {
+    this.modelQuery = this.modelQuery.skip(skip).limit(limit);
 
-        const page = Number(this?.query?.page) || 1;
-        const limit = Number(this?.query?.limit) || 10;
-        const skip = (page - 1) * limit;
+    return this;
+  }
 
-        this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+  fields() {
+    const fields =
+      (this?.query?.fields as string)?.split(',').join(' ') || '-__v';
 
-        return this;
-    };
+    this.modelQuery = this.modelQuery.select(fields);
 
-    fields(){
-        const fields = (this?.query?.fields as string)?.split(',').join(' ') || '-__v';
-
-        this.modelQuery = this.modelQuery.select(fields);
-
-        return this;
-    };
-
-};
+    return this;
+  }
+}
 
 export default QueryBulider;

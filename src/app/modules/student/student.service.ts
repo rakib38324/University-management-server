@@ -11,7 +11,6 @@ import { studentsSearchableFields } from './students.constant';
 const getAllStudentFromDB = async (query: Record<string, unknown>) => {
   // const queryObj = { ...query }// copoy
 
-
   // const studentsSearchableFields = ['email', 'id', 'name.firstName', 'name.lastName', 'presentAddress']
   // let searchTerm = '';
   // if (query?.searchTerm) {
@@ -30,7 +29,6 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
   // excludeFileds.forEach((el) => delete queryObj[el]);
   // // console.log({ query, queryObj })
 
-
   // const filterQuery = searchQuery
   //   .find(queryObj)
   //   .populate("admissionSemester")
@@ -41,14 +39,12 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
   //     },
   //   });
 
-
   // let sort = '-createAt'
   // if (query.sort) {
   //   sort = query.sort as string;
   // }
 
   // const sortQuery = filterQuery.sort(sort);
-
 
   // let limit = 1;
   // let page = 1;
@@ -65,7 +61,6 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
 
   // const paginateQuery = sortQuery.skip(skip)
 
-
   // const limitQuery = paginateQuery.limit(limit);
 
   // let fields = '-__v';
@@ -73,35 +68,36 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
   //   fields = (query.fields as string).split(',').join(' ');
   // }
 
-
   // const fieldsQuery = await limitQuery.select(fields);
 
   // return fieldsQuery;
 
-  const studentQuery = new QueryBulider(Student.find()
-    .populate("admissionSemester")
-    .populate({
-      path: 'academicDepartment',
-      populate: {
-        path: 'academicFaculty',
-      },
-    }), query)
+  const studentQuery = new QueryBulider(
+    Student.find()
+      .populate('admissionSemester')
+      .populate({
+        path: 'academicDepartment',
+        populate: {
+          path: 'academicFaculty',
+        },
+      }),
+    query,
+  )
     .search(studentsSearchableFields)
     .filter()
     .sort()
     .paginate()
     .fields();
 
-  const result = await studentQuery.modelQuery
+  const result = await studentQuery.modelQuery;
 
   return result;
 };
 
 const getSingleStudentFromDB = async (id: string) => {
-
   if (await Student.isUserExists(id)) {
     const result = await Student.findOne({ id: id })
-      .populate("admissionSemester")
+      .populate('admissionSemester')
       .populate({
         path: 'academicDepartment',
         populate: {
@@ -111,67 +107,57 @@ const getSingleStudentFromDB = async (id: string) => {
 
     return result;
   } else {
-    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
 };
 
 const deleteStudentFromDB = async (id: string) => {
-
   const session = await mongoose.startSession();
   try {
-
     session.startTransaction();
     if (await Student.isUserExists(id)) {
-
-
       const deletedStudent = await Student.findOneAndUpdate(
         { id },
         { isDeleted: true },
-        { new: true, session }
+        { new: true, session },
       );
 
       if (!deletedStudent) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Failed to delete student!");
+        throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student!');
       }
 
       const deletedUser = await User.findOneAndUpdate(
         { id },
         { isDeleted: true },
-        { new: true, session }
-      )
+        { new: true, session },
+      );
 
       if (!deletedUser) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Failed to delete user!");
+        throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete user!');
       }
 
       await session.commitTransaction();
       await session.endSession();
 
       return deletedStudent;
+    } else {
+      throw new AppError(httpStatus.NOT_FOUND, 'User not Exists!');
     }
-    else {
-      throw new AppError(httpStatus.NOT_FOUND, "User not Exists!");
-    }
-
   } catch (error: any) {
-
     await session.abortTransaction();
     await session.endSession();
 
-    throw new AppError(httpStatus.BAD_REQUEST, error.message)
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
   }
-
-
 };
 
-
 const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
-
   if (await Student.isUserExists(id)) {
-
     const { name, guardian, localGuardian, ...remainingStudentData } = payload;
 
-    const modifiedUpdatedData: Record<string, unknown> = { ...remainingStudentData, };
+    const modifiedUpdatedData: Record<string, unknown> = {
+      ...remainingStudentData,
+    };
 
     if (name && Object.keys(name).length) {
       for (const [key, value] of Object.entries(name)) {
@@ -191,26 +177,19 @@ const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
       }
     }
 
-
-
-    const result = await Student.findOneAndUpdate(
-      { id },
-      modifiedUpdatedData,
-      { new: true, runValidators: true }
-    )
+    const result = await Student.findOneAndUpdate({ id }, modifiedUpdatedData, {
+      new: true,
+      runValidators: true,
+    });
 
     return result;
-
+  } else {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not Exists!');
   }
-  else {
-    throw new AppError(httpStatus.NOT_FOUND, "User not Exists!");
-  }
-
-
 };
 export const StudentServices = {
   getAllStudentFromDB,
   getSingleStudentFromDB,
   deleteStudentFromDB,
-  updateStudentFromDB
+  updateStudentFromDB,
 };
