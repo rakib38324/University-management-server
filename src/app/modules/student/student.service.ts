@@ -95,8 +95,10 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getSingleStudentFromDB = async (id: string) => {
-  if (await Student.isUserExists(id)) {
-    const result = await Student.findOne({ id: id })
+  const studentExist = await Student.isUserExists(id);
+
+  if (studentExist) {
+    const result = await Student.findById({ _id: id })
       .populate('admissionSemester')
       .populate({
         path: 'academicDepartment',
@@ -115,9 +117,10 @@ const deleteStudentFromDB = async (id: string) => {
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    if (await Student.isUserExists(id)) {
-      const deletedStudent = await Student.findOneAndUpdate(
-        { id },
+    const studentExist = await Student.isUserExists(id);
+    if (studentExist) {
+      const deletedStudent = await Student.findByIdAndUpdate(
+        id,
         { isDeleted: true },
         { new: true, session },
       );
@@ -126,8 +129,11 @@ const deleteStudentFromDB = async (id: string) => {
         throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student!');
       }
 
-      const deletedUser = await User.findOneAndUpdate(
-        { id },
+      // get user _id from deletedStudent
+      const userId = deletedStudent.user;
+
+      const deletedUser = await User.findByIdAndUpdate(
+        userId,
         { isDeleted: true },
         { new: true, session },
       );
@@ -177,7 +183,7 @@ const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
       }
     }
 
-    const result = await Student.findOneAndUpdate({ id }, modifiedUpdatedData, {
+    const result = await Student.findByIdAndUpdate(id, modifiedUpdatedData, {
       new: true,
       runValidators: true,
     });
