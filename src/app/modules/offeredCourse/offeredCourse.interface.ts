@@ -15,3 +15,9 @@ export type TOfferCourse = {
   startTime: string;
   endTime: string;
 };
+
+export type TSchedule = {
+  days: TDays[];
+  startTime: string;
+  endTime: string;
+};
