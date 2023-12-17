@@ -50,7 +50,10 @@ const getSignleSemesterRegistration = catchAsync(async (req, res) => {
 const updateSemesterRegistration = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result =
-    await SemesterRegistrationServices.updateSemisterRegistrationIntoDB(id);
+    await SemesterRegistrationServices.updateSemisterRegistrationIntoDB(
+      id,
+      req.body,
+    );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
