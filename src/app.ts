@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import globalErrorHandeler from './app/middlwares/globalErrorHandler';
 import notFound from './app/middlwares/notFound';
 import router from './app/routes';
@@ -8,7 +9,8 @@ const app: Application = express();
 
 //--->parser
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: ['http://localhost:5173'] }));
+app.use(cookieParser());
 
 // const test = async(req: Request, res: Response)=>{
 //   // Promise.reject();

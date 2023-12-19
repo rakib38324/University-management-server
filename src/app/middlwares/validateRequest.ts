@@ -9,6 +9,7 @@ const ValidateRequest = (scehema: AnyZodObject) => {
       // if everything is allright => next()=>
       await scehema.parseAsync({
         body: req.body,
+        cookies: req.cookies,
       });
       next();
     },
