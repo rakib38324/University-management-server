@@ -5,6 +5,7 @@ import httpStatus from 'http-status';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
 import { TUserRole } from '../modules/user/user.interface';
+import { User } from '../modules/user/user.model';
 
 const Auth = (...requiredRole: TUserRole[]) => {
   return catchAsync(
@@ -14,33 +15,58 @@ const Auth = (...requiredRole: TUserRole[]) => {
         throw new AppError(httpStatus.UNAUTHORIZED, 'You are not Authorized');
       }
 
+      // invalid token - synchronous
       //===> check the if the token valid
-      // verify a token symmetric
-      jwt.verify(
+
+      const decoded = jwt.verify(
         token,
         config.jwt_access_secret as string,
-        function (err, decoded) {
-          if (err) {
-            throw new AppError(
-              httpStatus.UNAUTHORIZED,
-              'You are not Authorized',
-            );
-          }
+      ) as JwtPayload;
 
-          req.user = decoded as JwtPayload;
+      const { role, userId, iat } = decoded;
 
-          const role = (decoded as JwtPayload).role;
+      //===>check if the user is exists
 
-          if (requiredRole && !requiredRole.includes(role)) {
-            throw new AppError(
-              httpStatus.UNAUTHORIZED,
-              'You are not Authorized',
-            );
-          }
+      const isUserExists = await User.isUserExistsByCustomId(userId);
 
-          next();
-        },
-      );
+      if (!isUserExists) {
+        throw new AppError(httpStatus.NOT_FOUND, 'This user not found!');
+      }
+
+      //===>check if the user is already deleted
+      const isUserDeleted = isUserExists?.isDeleted;
+
+      if (isUserDeleted) {
+        throw new AppError(
+          httpStatus.FORBIDDEN,
+          'This user is already deleted!',
+        );
+      }
+
+      //===>check if the user is blocked
+      const userStatus = isUserExists?.status;
+
+      if (userStatus === 'blocked') {
+        throw new AppError(httpStatus.FORBIDDEN, 'This user is Blocked!');
+      }
+
+      if (
+        isUserExists.passwordChangedAt &&
+        User.isJWTIssuedBeforePasswordChanged(
+          isUserExists.passwordChangedAt,
+          iat as number,
+        )
+      ) {
+        throw new AppError(httpStatus.UNAUTHORIZED, 'You are not Authorized');
+      }
+
+      if (requiredRole && !requiredRole.includes(role)) {
+        throw new AppError(httpStatus.UNAUTHORIZED, 'You are not Authorized');
+      }
+
+      req.user = decoded;
+
+      next();
     },
   );
 };
