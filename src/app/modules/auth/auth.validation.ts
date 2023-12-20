@@ -20,8 +20,23 @@ const refreshTokenValidationSchema = z.object({
   }),
 });
 
+const forgetPasswprdValidationSchema = z.object({
+  body: z.object({
+    id: z.string({ required_error: 'Id is requird.' }),
+  }),
+});
+
+const resetPasswprdValidationSchema = z.object({
+  body: z.object({
+    id: z.string({ required_error: 'Id is requird.' }),
+    newPassword: z.string({ required_error: 'New Password is requird.' }),
+  }),
+});
+
 export const AuthValidations = {
   loginValidationSchema,
   changePasswordValidationSchema,
   refreshTokenValidationSchema,
+  forgetPasswprdValidationSchema,
+  resetPasswprdValidationSchema,
 };

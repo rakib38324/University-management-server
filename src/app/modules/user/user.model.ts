@@ -10,6 +10,11 @@ const User_Schema = new Schema<TUser, UserModel>(
       require: true,
       unique: true,
     },
+    email: {
+      type: String,
+      require: true,
+      unique: true,
+    },
     password: {
       type: String,
       require: true,
