@@ -8,23 +8,23 @@ const router = express.Router();
 
 //will call controller function
 
-router.get('/', Auth('admin', 'student'), StudentController.getAllStudents);
+router.get('/', Auth('admin', 'faculty'), StudentController.getAllStudents);
 
 router.get(
   '/:id',
-  Auth('admin', 'student'),
+  Auth('admin', 'faculty'),
   StudentController.getSingleStudent,
 );
 
 router.delete(
   '/:id',
-  Auth('admin', 'student'),
+  Auth('admin', 'faculty'),
   StudentController.deleteStudent,
 );
 
 router.patch(
   '/:id',
-  Auth('admin', 'student'),
+  Auth('admin', 'faculty'),
   ValidateRequest(studentValidation.updateStudentValidationZodSchema),
   StudentController.updateStudent,
 );
