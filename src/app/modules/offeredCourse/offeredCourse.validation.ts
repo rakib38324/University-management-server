@@ -17,6 +17,7 @@ export const CreateOfferCourseValidationSchema = z.object({
       semesterRegistration: z.string(),
       academicFaculty: z.string(),
       academicDepartment: z.string(),
+      academicSemester: z.string(),
       course: z.string(),
       faculty: z.string(),
       maxCapacity: z.number(),
