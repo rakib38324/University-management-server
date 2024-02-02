@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post(
   '/create-academic-department',
-  Auth('admin'),
+  Auth('admin', 'superAdmin'),
   ValidateRequest(
     AcademicDepartmentValidation.createAcademicDepartmentZodValidationSchema,
   ),

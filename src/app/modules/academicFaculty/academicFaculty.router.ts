@@ -3,12 +3,13 @@ import ValidateRequest from '../../middlwares/validateRequest';
 import { AcademicFacultyValidation } from './academicFaculty.validation';
 import { AcademicFacultyControllers } from './academicFaculty.controller';
 import Auth from '../../middlwares/auth';
+import { USER_ROLE } from '../user/user.constant';
 
 const router = express.Router();
 
 router.post(
   '/create-academic-faculty',
-  Auth('admin'),
+  Auth(USER_ROLE.superAdmin, 'admin'),
   ValidateRequest(
     AcademicFacultyValidation.createAcademicFacultyZodValidationSchema,
   ),

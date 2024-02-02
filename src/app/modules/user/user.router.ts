@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post(
   '/create-student',
-  Auth(USER_ROLE.admin),
+  Auth(USER_ROLE.admin, 'superAdmin'),
   upload.single('file'),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
@@ -25,7 +25,7 @@ router.post(
 
 router.post(
   '/create-faculty',
-  Auth(USER_ROLE.admin),
+  Auth(USER_ROLE.admin, 'superAdmin'),
   upload.single('file'),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
@@ -37,7 +37,7 @@ router.post(
 
 router.post(
   '/create-admin',
-  // Auth(USER_ROLE.admin),
+  Auth(USER_ROLE.superAdmin, 'superAdmin'),
   upload.single('file'),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
@@ -49,13 +49,13 @@ router.post(
 
 router.get(
   '/me',
-  Auth(USER_ROLE.admin, 'student', 'faculty'),
+  Auth(USER_ROLE.admin, 'student', 'faculty', 'superAdmin'),
   UserController.getMe,
 );
 
 router.post(
   '/change-status/:id',
-  Auth(USER_ROLE.admin),
+  Auth(USER_ROLE.admin, 'superAdmin'),
   ValidateRequest(UserValidation.changeStatusValidationSchema),
   UserController.changeStatus,
 );

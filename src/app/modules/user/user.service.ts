@@ -42,6 +42,27 @@ const createStudentIntoDB = async (
     payload.admissionSemester,
   );
 
+  if (!admissionSmester) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Admission Semester is not found',
+    );
+  }
+
+  //----> find department info
+  const academicDepartment = await AcademicDepartment.findById(
+    payload.academicDepartment,
+  );
+
+  if (!academicDepartment) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Admission Department is not found',
+    );
+  }
+
+  payload.academicFaculty = academicDepartment.academicFaculty;
+
   const session = await mongoose.startSession();
 
   try {
@@ -52,10 +73,13 @@ const createStudentIntoDB = async (
       userData.id = await generateStudentId(admissionSmester);
     }
 
-    //====> send image to cloudinay
-    const img_name = `${userData?.id}${payload?.name?.firstName}`;
-    const path = file.path;
-    const { secure_url }: any = await sendImageToCloudinary(path, img_name);
+    if (file) {
+      //====> send image to cloudinay
+      const img_name = `${userData?.id}${payload?.name?.firstName}`;
+      const path = file.path;
+      const { secure_url } = await sendImageToCloudinary(path, img_name);
+      payload.profileImage = secure_url as string;
+    }
 
     //-----> create a user (transaction-1)
     const newUser = await User.create([userData], { session }); //array
@@ -67,7 +91,6 @@ const createStudentIntoDB = async (
     //----> set id, _id as user
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id; //reference id
-    payload.profileImage = secure_url;
 
     //-----> create a student (transaction-2)
     const newStudent = await Student.create([payload], { session });
@@ -111,10 +134,13 @@ const createAdminIntoDB = async (
     //set  generated id
     userData.id = await generateAdminId();
 
-    //====> send image to cloudinay
-    const img_name = `${userData?.id}${payload?.name?.firstName}`;
-    const path = file.path;
-    const { secure_url }: any = await sendImageToCloudinary(path, img_name);
+    if (file) {
+      //====> send image to cloudinay
+      const img_name = `${userData?.id}${payload?.name?.firstName}`;
+      const path = file.path;
+      const { secure_url } = await sendImageToCloudinary(path, img_name);
+      payload.profileImg = secure_url as string;
+    }
 
     // create a user (transaction-1)
     const newUser = await User.create([userData], { session });
@@ -126,7 +152,6 @@ const createAdminIntoDB = async (
     // set id , _id as user
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id; //reference _id
-    payload.profileImg = secure_url;
 
     // create a admin (transaction-2)
     const newAdmin = await Admin.create([payload], { session });
@@ -172,6 +197,8 @@ const createFacultyIntoDB = async (
     throw new AppError(400, 'Academic department not found');
   }
 
+  payload.academicFaculty = academicDepartment.academicFaculty;
+
   const session = await mongoose.startSession();
 
   try {
@@ -179,10 +206,13 @@ const createFacultyIntoDB = async (
     //set  generated id
     userData.id = await generateFacultyId();
 
-    //====> send image to cloudinay
-    const img_name = `${userData?.id}${payload?.name?.firstName}`;
-    const path = file.path;
-    const { secure_url }: any = await sendImageToCloudinary(path, img_name);
+    if (file) {
+      //====> send image to cloudinay
+      const img_name = `${userData?.id}${payload?.name?.firstName}`;
+      const path = file.path;
+      const { secure_url } = await sendImageToCloudinary(path, img_name);
+      payload.profileImg = secure_url as string;
+    }
 
     // create a user (transaction-1)
     const newUser = await User.create([userData], { session }); // array
@@ -194,7 +224,6 @@ const createFacultyIntoDB = async (
     // set id , _id as user
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id; //reference _id
-    payload.profileImg = secure_url;
 
     // create a faculty (transaction-2)
 
