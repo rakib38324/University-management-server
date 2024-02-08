@@ -75,12 +75,9 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
   const studentQuery = new QueryBulider(
     Student.find()
       .populate('admissionSemester')
-      .populate({
-        path: 'academicDepartment',
-        populate: {
-          path: 'academicFaculty',
-        },
-      }),
+      .populate('user')
+      .populate('academicDepartment')
+      .populate('academicFaculty'),
     query,
   )
     .search(studentsSearchableFields)
@@ -90,8 +87,9 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
     .fields();
 
   const result = await studentQuery.modelQuery;
+  const meta = await studentQuery.countTotal();
 
-  return result;
+  return { meta, result };
 };
 
 const getSingleStudentFromDB = async (id: string) => {

@@ -11,24 +11,24 @@ const router = express.Router();
 
 router.post(
   '/create-semester-registration',
-  Auth('admin'),
+  Auth('admin', 'superAdmin'),
   ValidateRequest(createSemesterRegistrationValidationSchema),
   semesterRegistrationControllers.createSemesterRegistration,
 );
 router.get(
   '/',
-  Auth('admin'),
+  Auth('admin', 'superAdmin', 'faculty', 'student'),
   semesterRegistrationControllers.getAllSemesterRegistration,
 );
 router.get(
   '/:id',
-  Auth('admin'),
+  Auth('admin', 'superAdmin', 'faculty', 'student'),
   semesterRegistrationControllers.getSignleSemesterRegistration,
 );
 
 router.patch(
   '/:id',
-  Auth('admin'),
+  Auth('admin', 'superAdmin'),
   ValidateRequest(
     SemesterRegistrationValidations.updateSemesterRegistrationValidationSchema,
   ),

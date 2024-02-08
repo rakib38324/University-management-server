@@ -7,33 +7,39 @@ const router = express.Router();
 
 router.get(
   '/',
-  Auth('admin', 'faculty', 'student'),
+  Auth('admin', 'faculty', 'student', 'superAdmin'),
   OfferedCourseControllers.getAllOfferedCourses,
 );
 
 router.get(
+  '/my-offered-courses',
+  Auth('student'),
+  OfferedCourseControllers.getMyOfferedCourses,
+);
+
+router.get(
   '/:id',
-  Auth('admin', 'faculty', 'student'),
+  Auth('admin', 'faculty', 'student', 'superAdmin'),
   OfferedCourseControllers.getSingleOfferedCourses,
 );
 
 router.post(
   '/create-offered-course',
-  Auth('admin'),
+  Auth('admin', 'superAdmin'),
   ValidateRequest(OfferCourseValidations.CreateOfferCourseValidationSchema),
   OfferedCourseControllers.createOfferedCourse,
 );
 
 router.patch(
   '/:id',
-  Auth('admin'),
+  Auth('admin', 'superAdmin'),
   ValidateRequest(OfferCourseValidations.UpdateOfferCourseValidationSchema),
   OfferedCourseControllers.updateOfferedCourse,
 );
 
 router.delete(
   '/:id',
-  Auth('admin'),
+  Auth('admin', 'superAdmin'),
   OfferedCourseControllers.deleteOfferedCourse,
 );
 

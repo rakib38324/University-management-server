@@ -17,19 +17,19 @@ router.post(
 
 router.get(
   '/',
-  Auth('admin', 'faculty', 'student'),
+  Auth('admin', 'faculty', 'student', 'superAdmin'),
   AcademicSemesterController.getAllAcademicSemester,
 );
 
 router.get(
   '/:id',
-  Auth('admin', 'faculty', 'student'),
+  Auth('admin', 'faculty', 'student', 'superAdmin'),
   AcademicSemesterController.getSingleAcademicSemester,
 );
 
 router.patch(
   '/:id',
-  Auth('admin'),
+  Auth('admin', 'superAdmin'),
   ValidateRequest(
     AcademicSemesterValidation.updateAcademicSemesterValidationSchema,
   ),

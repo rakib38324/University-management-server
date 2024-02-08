@@ -1,9 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
-import { academicSemesterNameCodeMapper } from './academicSemester.constant';
+import {
+  AcademicSemesterSearchableFields,
+  academicSemesterNameCodeMapper,
+} from './academicSemester.constant';
 import { TAcademicSemester } from './academicSemester.interface';
 import { AcademicSemester } from './academicSemester.model';
+import QueryBulider from '../../builder/QueryBuilder';
 // import mongoose from "mongoose";
 // const { ObjectId } = mongoose.Types;
 
@@ -19,9 +23,21 @@ const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
   return result;
 };
 
-const getAllAcademicSemesterFromDB = async () => {
-  const result = AcademicSemester.find();
-  return result;
+const getAllAcademicSemesterFromDB = async (query: Record<string, unknown>) => {
+  const academicSemesterQuery = new QueryBulider(AcademicSemester.find(), query)
+    .search(AcademicSemesterSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await academicSemesterQuery.modelQuery;
+  const meta = await academicSemesterQuery.countTotal();
+
+  return {
+    meta,
+    result,
+  };
 };
 
 const getSingleAcademicSemesterFromDB = async (id: string) => {
